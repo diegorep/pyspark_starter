@@ -2,8 +2,10 @@ version: "2"
 services:
   master:
     container_name: master
-    image: gettyimages/spark:1.6.0-hadoop-2.6
-    command: /usr/spark/bin/spark-class org.apache.spark.deploy.master.Master -h master
+    build:
+        context: . 
+        dockerfile: ./Dockerfile-master
+    command: /usr/spark-2.1.0/bin/spark-class org.apache.spark.deploy.master.Master -h master
     hostname: master
     environment:
       - constraint:role==master
@@ -15,8 +17,10 @@ services:
     expose:
       - "8081-8095"
   worker:
-    image: gettyimages/spark:1.6.0-hadoop-2.6
-    command: /usr/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+    build:
+        context: . 
+        dockerfile: ./Dockerfile-worker
+    command: /usr/spark-2.1.0/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     environment:
       - constraint:role!=master
     ports:

@@ -1,4 +1,5 @@
 #!/bin/bash
+source ./scripts/local_env_vars.sh
 docker-machine create $DRIVER_OPTIONS ${CLUSTER_PREFIX}-ks
 docker $(docker-machine config ${CLUSTER_PREFIX}-ks) run -d -p "8500:8500" -h "consul" progrium/consul -server -bootstrap
 KEYSTORE_IP=$(docker-machine ip ${CLUSTER_PREFIX}-ks)
@@ -13,3 +14,5 @@ create_node() {
 }
 export -f create_node
 parallel -j0 --no-run-if-empty create_node ::: ${CLUSTER_PREFIX} ::: $(seq -s ' ' 1 $CLUSTER_NUM_NODES)
+eval $(docker-machine env --swarm $MASTER)
+docker-compose scale master=1 worker=$CLUSTER_NUM_NODES
